@@ -4,6 +4,7 @@ import 'package:js/js_util.dart';
 import 'package:talkjs/talkjs.dart';
 
 main() async {
+  addTalkJsScript();
   await TalkJs.ready;
   print('talk js is ready');
 

@@ -5,8 +5,21 @@ import 'dart:async';
 import 'dart:html';
 
 import 'package:js/js.dart';
+import 'package:dart_browser_loader/dart_browser_loader.dart';
 
 import 'talk_js_interop.dart' as interop;
+
+const _talkjsScript = '''
+(function(t,a,l,k,j,s){
+s=a.createElement('script');s.async=1;s.src="https://cdn.talkjs.com/talk.js";a.getElementsByTagName('head')[0].appendChild(s);k=t.Promise
+t.Talk={ready:{then:function(f){if(k)return new k(function(r,e){l.push([f,r,e])});l.push([f])},catch:function(){return k&&new k()},c:l}}
+})(window,document,[]);''';
+
+const _scriptId = "talkjs-sdk";
+
+void addTalkJsScript() {
+  loadInlineScript(_talkjsScript, _scriptId);
+}
 
 /// A user of your app.
 /// This is a vanilla JavaScript object with no behavior.
@@ -26,11 +39,11 @@ class User {
     String configuration,
   })
       : _talkJsUser = new interop.TalkJsUser(new interop.TalkJsUserOptions(
-            id: id,
-            name: name,
-            photoUrl: photoUrl,
-            welcomeMessage: welcomeMessage,
-            configuration: configuration));
+      id: id,
+      name: name,
+      photoUrl: photoUrl,
+      welcomeMessage: welcomeMessage,
+      configuration: configuration));
 
   @override
   String toString() => "User{${_talkJsUser.id}, ${_talkJsUser.name}}";
@@ -76,8 +89,8 @@ class Session {
   /// Creates a session. Do this once on every page.
   Session(String appId, User me, {String signature})
       : talkJsSession = new interop.TalkJsSession(
-            new interop.TalkJsSessionOptions(
-                appId: appId, me: me._talkJsUser, signature: signature));
+      new interop.TalkJsSessionOptions(
+          appId: appId, me: me._talkJsUser, signature: signature));
 
   /// Returns a [Conversation] object that encapsulates a conversation between me (given in the constructor) and other.
   Conversation getOrStartConversationWithUser(User other) {
