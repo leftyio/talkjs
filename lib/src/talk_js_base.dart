@@ -17,6 +17,8 @@ t.Talk={ready:{then:function(f){if(k)return new k(function(r,e){l.push([f,r,e])}
 
 const _scriptId = "talkjs-sdk";
 
+external get undefined;
+
 void addTalkJsScript() {
   loadInlineScript(_talkjsScript, _scriptId);
 }
@@ -37,13 +39,12 @@ class User {
     String photoUrl,
     String welcomeMessage,
     String configuration,
-  })
-      : _talkJsUser = new interop.TalkJsUser(new interop.TalkJsUserOptions(
-      id: id,
-      name: name,
-      photoUrl: photoUrl,
-      welcomeMessage: welcomeMessage,
-      configuration: configuration));
+  }) : _talkJsUser = new interop.TalkJsUser(new interop.TalkJsUserOptions(
+            id: id,
+            name: name,
+            photoUrl: photoUrl,
+            welcomeMessage: welcomeMessage,
+            configuration: configuration));
 
   @override
   String toString() => "User{${_talkJsUser.id}, ${_talkJsUser.name}}";
@@ -89,8 +90,10 @@ class Session {
   /// Creates a session. Do this once on every page.
   Session(String appId, User me, {String signature})
       : talkJsSession = new interop.TalkJsSession(
-      new interop.TalkJsSessionOptions(
-          appId: appId, me: me._talkJsUser, signature: signature));
+            new interop.TalkJsSessionOptions(
+                appId: appId,
+                me: me._talkJsUser,
+                signature: signature ?? undefined));
 
   /// Returns a [Conversation] object that encapsulates a conversation between me (given in the constructor) and other.
   Conversation getOrStartConversationWithUser(User other) {
