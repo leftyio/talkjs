@@ -126,8 +126,8 @@ class Session {
 
 class TalkJs {
   /// Complete when talkjs is ready
-  static Future<Null> get ready {
-    final completer = new Completer();
+  static Future<void> get ready {
+    final completer = new Completer<void>();
     interop.ready(allowInterop(completer.complete));
     return completer.future;
   }
