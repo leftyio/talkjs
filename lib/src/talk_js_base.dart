@@ -81,6 +81,24 @@ class Inbox {
   void mount(Element element) {
     _talkJsInbox.mount(element);
   }
+
+  void destroy() {
+    _talkJsChatbox.destroy();
+  }
+}
+
+class Chatbox {
+  final interop.TalkJsChatbox _talkJsChatbox;
+
+  Chatbox._(this._talkJsChatbox);
+
+  void mount(Element element) {
+    _talkJsChatbox.mount(element);
+  }
+
+  void destroy() {
+    _talkJsChatbox.destroy();
+  }
 }
 
 /// A session represents a user's active browser tab. It also authenticates your app with TalkJS.
@@ -116,6 +134,11 @@ class Session {
     inboxOptions ??= new InboxOptions();
     return new Inbox._(
         talkJsSession.createInbox(inboxOptions.talkJsInboxOptions));
+  }
+
+  Chatbox createChatbox(Conversation converstation) {
+    return new Chatbox._(
+        talkJsSession.createChatbox(converstation._talkJsConversation));
   }
 
   /// During development you can use a local theme.
