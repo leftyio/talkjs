@@ -83,7 +83,7 @@ class Inbox {
   }
 
   void destroy() {
-    _talkJsChatbox.destroy();
+    _talkJsInbox.destroy();
   }
 }
 
