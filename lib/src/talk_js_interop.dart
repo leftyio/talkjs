@@ -44,6 +44,15 @@ class TalkJsConversation {
 @JS('Talk.Inbox')
 class TalkJsInbox {
   external void mount(Element element);
+
+  external void destroy();
+}
+
+@JS('Talk.Chatbox')
+class TalkJsChatbox {
+  external void mount(Element element);
+
+  external void destroy();
 }
 
 @JS()
@@ -67,6 +76,8 @@ class TalkJsSession {
       dynamic /*_TalJsUser|String*/ other);
 
   external TalkJsInbox createInbox(TalkJsInboxOptions inboxOptions);
+
+  external TalkJsChatbox createChatbox(TalkJsConversation conversation);
 
   external void syncThemeForLocalDev(String path);
 }
