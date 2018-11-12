@@ -46,6 +46,12 @@ class TalkJsInbox {
   external void mount(Element element);
 
   external void destroy();
+
+  external void on(String eventType, Function handler);
+
+  external void off(String eventType, Function handler);
+
+  external void select(dynamic conversation, [TalkJsInboxOptions options]);
 }
 
 @JS('Talk.Chatbox')
@@ -94,4 +100,42 @@ class TalkJsInboxOptions {
 
   external factory TalkJsInboxOptions(
       {dynamic /*TalkJsConversation|String*/ selected});
+}
+
+@JS()
+@anonymous
+class TalksJSConversationData {
+  external String get id;
+
+  external String get photoUrl;
+
+  external String get subject;
+
+  external String get topicId;
+
+  external factory TalksJSConversationData({
+    String id,
+    String photoUrl,
+    String subject,
+    String topicId,
+  });
+}
+
+@JS()
+@anonymous
+class TalksJsConversationSelectedEvent {
+  external TalksJSConversationData get conversation;
+
+  external TalkJsUser get me;
+
+  external TalkJsUser get other;
+
+  external List<TalkJsUser> get others;
+
+  external factory TalksJsConversationSelectedEvent({
+    TalksJSConversationData conversation,
+    TalkJsUser me,
+    TalkJsUser other,
+    TalkJsUser others,
+  });
 }

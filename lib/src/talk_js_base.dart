@@ -69,13 +69,50 @@ class Conversation {
       _talkJsConversation.participants.map((user) => new User._(user)).toList();
 }
 
+class ConversationData {
+  final interop.TalksJSConversationData _talkjsConversationData;
+
+  ConversationData._(this._talkjsConversationData);
+
+  String get id => _talkjsConversationData.id;
+}
+
+class ConversationSelectedEvent {
+  final interop.TalksJsConversationSelectedEvent
+      _talksJsConversationSelectedEvent;
+
+  ConversationSelectedEvent._(this._talksJsConversationSelectedEvent);
+
+  ConversationData get conversation =>
+      ConversationData._(_talksJsConversationSelectedEvent.conversation);
+
+  User get me => User._(_talksJsConversationSelectedEvent.me);
+
+  User get other => User._(_talksJsConversationSelectedEvent.other);
+
+  List<User> get others {
+    final _others = _talksJsConversationSelectedEvent.others ?? [];
+    return _others.map((u) => User._(u)).toList();
+  }
+}
+
 /// The main messaging UI.
 /// Chats on the left, messages on the right.
 /// Create an Inbox through [Session.createInbox] and then call [mount] to show it.
 class Inbox {
   final interop.TalkJsInbox _talkJsInbox;
 
-  Inbox._(this._talkJsInbox);
+  StreamController<ConversationSelectedEvent> _onSelectConversationController;
+
+  Inbox._(this._talkJsInbox) {
+    _onSelectConversationController = StreamController(
+      onListen: _onListenSelectConversationController,
+      onCancel: _onCancelSelectConversationController,
+    );
+  }
+
+  Stream<ConversationSelectedEvent> get onConversationSelected =>
+      _onSelectConversationController.stream;
 
   /// Renders the UI inside a DOM element specified by [element].
   void mount(Element element) {
@@ -84,6 +121,26 @@ class Inbox {
 
   void destroy() {
     _talkJsInbox.destroy();
+    _onSelectConversationController?.close();
+  }
+
+  void selectById(String conversationId, [InboxOptions options]) {
+    _talkJsInbox.select(conversationId, options._talkJsInboxOptions);
+  }
+
+  void _onListenSelectConversationController() {
+    _talkJsInbox.on(
+        "conversationSelected", allowInterop(_onConversationSelected));
+  }
+
+  void _onCancelSelectConversationController() {
+    _talkJsInbox.off("conversationSelected", allowInterop((_) {}));
+  }
+
+  void _onConversationSelected(
+      interop.TalksJsConversationSelectedEvent conversationSelectedEvent) {
+    _onSelectConversationController
+        .add(ConversationSelectedEvent._(conversationSelectedEvent));
   }
 }
 
@@ -133,7 +190,7 @@ class Session {
   Inbox createInbox({InboxOptions inboxOptions}) {
     inboxOptions ??= new InboxOptions();
     return new Inbox._(
-        talkJsSession.createInbox(inboxOptions.talkJsInboxOptions));
+        talkJsSession.createInbox(inboxOptions._talkJsInboxOptions));
   }
 
   Chatbox createChatbox(Conversation converstation) {
@@ -157,14 +214,14 @@ class TalkJs {
 }
 
 class InboxOptions {
-  interop.TalkJsInboxOptions talkJsInboxOptions;
+  interop.TalkJsInboxOptions _talkJsInboxOptions;
 
   /// Optional.
   /// either a [Conversation] object (as returned from [Session.getOrStartConversationId] or [Session.getOrStartConversationWithUser])
   /// or the id field of a conversation (which you may have stored in your database).
   /// If given, makes the inbox startup up with that conversation selected.
   void set selected(dynamic /*Conversation|String*/ newSelected) {
-    talkJsInboxOptions.selected = newSelected;
+    _talkJsInboxOptions.selected = newSelected;
   }
 
   /// Create [InboxOptions]
@@ -176,9 +233,9 @@ class InboxOptions {
 
   InboxOptions({dynamic /*Conversation|String*/ selected}) {
     assert(selected is String || selected is Conversation || selected == null);
-    talkJsInboxOptions = new interop.TalkJsInboxOptions();
+    _talkJsInboxOptions = new interop.TalkJsInboxOptions();
     if (selected != null) {
-      talkJsInboxOptions.selected = _getSelected(selected);
+      _talkJsInboxOptions.selected = _getSelected(selected);
     }
   }
 
