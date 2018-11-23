@@ -134,7 +134,8 @@ class Inbox {
   }
 
   void _onCancelSelectConversationController() {
-    _talkJsInbox.off("conversationSelected", allowInterop((_) {}));
+    // Commented because 'conversationSelected is an unknown event type
+    // _talkJsInbox.off("conversationSelected", allowInterop((_) {}));
   }
 
   void _onConversationSelected(
