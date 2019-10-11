@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.7
+- fix off conversation
+
 ## 0.0.6
 
 #### Inbox:

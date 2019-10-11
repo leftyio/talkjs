@@ -96,7 +96,7 @@ external void ready(Function f);
 class TalkJsInboxOptions {
   external dynamic /*TalkJsConversation|String*/ get selected;
 
-  external void set selected(dynamic /*TalkJsConversation|String*/ selected);
+  external set selected(dynamic /*TalkJsConversation|String*/ selected);
 
   external factory TalkJsInboxOptions(
       {dynamic /*TalkJsConversation|String*/ selected});

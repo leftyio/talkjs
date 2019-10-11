@@ -39,7 +39,7 @@ class User {
     String photoUrl,
     String welcomeMessage,
     String configuration,
-  }) : _talkJsUser = new interop.TalkJsUser(new interop.TalkJsUserOptions(
+  }) : _talkJsUser = interop.TalkJsUser(interop.TalkJsUserOptions(
             id: id,
             name: name,
             photoUrl: photoUrl,
@@ -66,7 +66,7 @@ class Conversation {
   String get internalId => _talkJsConversation.internalId;
 
   List<User> get participants =>
-      _talkJsConversation.participants.map((user) => new User._(user)).toList();
+      _talkJsConversation.participants.map((user) => User._(user)).toList();
 }
 
 class ConversationData {
@@ -165,22 +165,20 @@ class Session {
 
   /// Creates a session. Do this once on every page.
   Session(String appId, User me, {String signature})
-      : talkJsSession = new interop.TalkJsSession(
-            new interop.TalkJsSessionOptions(
-                appId: appId,
-                me: me._talkJsUser,
-                signature: signature ?? undefined));
+      : talkJsSession = interop.TalkJsSession(interop.TalkJsSessionOptions(
+            appId: appId,
+            me: me._talkJsUser,
+            signature: signature ?? undefined));
 
   /// Returns a [Conversation] object that encapsulates a conversation between me (given in the constructor) and other.
   Conversation getOrStartConversationWithUser(User other) {
-    return new Conversation._(
+    return Conversation._(
         talkJsSession.getOrStartConversation(other._talkJsUser));
   }
 
   /// Returns a [Conversation] object that encapsulates a conversation between me (given in the constructor) and other.
   Conversation getOrStartConversationId(String conversationId) {
-    return new Conversation._(
-        talkJsSession.getOrStartConversation(conversationId));
+    return Conversation._(talkJsSession.getOrStartConversation(conversationId));
   }
 
   /// The Inbox is the main UI component of TalkJS.
@@ -189,13 +187,12 @@ class Session {
   ///
   /// Call [createInbox] on the messaging page of your app.
   Inbox createInbox({InboxOptions inboxOptions}) {
-    inboxOptions ??= new InboxOptions();
-    return new Inbox._(
-        talkJsSession.createInbox(inboxOptions._talkJsInboxOptions));
+    inboxOptions ??= InboxOptions();
+    return Inbox._(talkJsSession.createInbox(inboxOptions._talkJsInboxOptions));
   }
 
   Chatbox createChatbox(Conversation converstation) {
-    return new Chatbox._(
+    return Chatbox._(
         talkJsSession.createChatbox(converstation._talkJsConversation));
   }
 
@@ -208,7 +205,7 @@ class Session {
 class TalkJs {
   /// Complete when talkjs is ready
   static Future<void> get ready {
-    final completer = new Completer<void>();
+    final completer = Completer<void>();
     interop.ready(allowInterop(completer.complete));
     return completer.future;
   }
@@ -221,7 +218,7 @@ class InboxOptions {
   /// either a [Conversation] object (as returned from [Session.getOrStartConversationId] or [Session.getOrStartConversationWithUser])
   /// or the id field of a conversation (which you may have stored in your database).
   /// If given, makes the inbox startup up with that conversation selected.
-  void set selected(dynamic /*Conversation|String*/ newSelected) {
+  set selected(dynamic /*Conversation|String*/ newSelected) {
     _talkJsInboxOptions.selected = newSelected;
   }
 
@@ -234,7 +231,7 @@ class InboxOptions {
 
   InboxOptions({dynamic /*Conversation|String*/ selected}) {
     assert(selected is String || selected is Conversation || selected == null);
-    _talkJsInboxOptions = new interop.TalkJsInboxOptions();
+    _talkJsInboxOptions = interop.TalkJsInboxOptions();
     if (selected != null) {
       _talkJsInboxOptions.selected = _getSelected(selected);
     }

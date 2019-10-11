@@ -1,8 +1,10 @@
 name: talkjs
 description: TalkJS wrap for dart
-version: 0.0.7
-homepage: https://lefty.io
-author: Kevin Segaud <kevin.segaud@gmail.com>
+version: 0.0.7+1
+homepage: https://github.com/leftyio/talkjs
+authors: 
+  - Kevin Segaud <kevin.segaud@gmail.com>
+  - Hadrien Lejard <hadrien.lejard@gmail.com>
 
 environment:
   sdk: '>=1.20.1 <3.0.0'
@@ -13,3 +15,4 @@ dependencies:
 
 dev_dependencies:
   test: ^1.3.0
+  pedantic: ^1.8.0
