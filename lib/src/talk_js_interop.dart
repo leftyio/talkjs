@@ -6,43 +6,36 @@ import 'package:js/js.dart';
 
 @JS()
 @anonymous
-class TalkJsUserOptions {
-  external factory TalkJsUserOptions(
-      {String id,
-      String name,
-      String photoUrl,
-      String welcomeMessage,
-      String configuration});
+class UserOptions {
+  external factory UserOptions({
+    String id,
+    String name,
+    String? email,
+    String? photoUrl,
+    String? welcomeMessage,
+    String? role,
+  });
 }
 
 @JS('Talk.User')
-class TalkJsUser {
-  external factory TalkJsUser(TalkJsUserOptions options);
+class User {
+  external factory User(UserOptions options);
 
   external String get id;
 
   external String get name;
 
-  external String get email;
+  external String? get email;
 
-  external String get photoUrl;
+  external String? get photoUrl;
 
-  external String get welcomeMessage;
+  external String? get welcomeMessage;
 
-  external String get configuration;
-}
-
-@JS('Talk.Conversation')
-class TalkJsConversation {
-  external String get id;
-
-  external String get internalId;
-
-  external List<TalkJsUser> get participants;
+  external String? role;
 }
 
 @JS('Talk.Inbox')
-class TalkJsInbox {
+class InboxInterop {
   external void mount(Element element);
 
   external void destroy();
@@ -51,11 +44,14 @@ class TalkJsInbox {
 
   external void off(String eventType, Function handler);
 
-  external void select(dynamic conversation, [TalkJsInboxOptions options]);
+  external void select(
+    dynamic /* ConversationBuilder|String*/ conversation, [
+    InboxOptions? options,
+  ]);
 }
 
 @JS('Talk.Chatbox')
-class TalkJsChatbox {
+class Chatbox {
   external void mount(Element element);
 
   external void destroy();
@@ -63,79 +59,106 @@ class TalkJsChatbox {
 
 @JS()
 @anonymous
-class TalkJsSessionOptions {
-  external factory TalkJsSessionOptions(
-      {String appId, TalkJsUser me, String signature});
-}
-
-@JS('Talk.Session')
-class TalkJsSession {
-  external factory TalkJsSession(TalkJsSessionOptions options);
-
-  external String get appId;
-
-  external TalkJsUser get me;
-
-  external String get signature;
-
-  external TalkJsConversation getOrStartConversation(
-      dynamic /*_TalJsUser|String*/ other);
-
-  external TalkJsInbox createInbox(TalkJsInboxOptions inboxOptions);
-
-  external TalkJsChatbox createChatbox(TalkJsConversation conversation);
-
-  external void syncThemeForLocalDev(String path);
-}
-
-@JS('Talk.ready.then')
-external void ready(Function f);
-
-@JS()
-@anonymous
-class TalkJsInboxOptions {
-  external dynamic /*TalkJsConversation|String*/ get selected;
-
-  external set selected(dynamic /*TalkJsConversation|String*/ selected);
-
-  external factory TalkJsInboxOptions(
-      {dynamic /*TalkJsConversation|String*/ selected});
-}
-
-@JS()
-@anonymous
-class TalksJSConversationData {
-  external String get id;
-
-  external String get photoUrl;
-
-  external String get subject;
-
-  external String get topicId;
-
-  external factory TalksJSConversationData({
-    String id,
-    String photoUrl,
-    String subject,
-    String topicId,
+class SessionOptions {
+  external factory SessionOptions({
+    String appId,
+    User me,
+    String? signature,
   });
 }
 
 @JS()
 @anonymous
-class TalksJsConversationSelectedEvent {
-  external TalksJSConversationData get conversation;
+class ConversationAttributes {
+  external factory ConversationAttributes({
+    dynamic? custom,
+    String? photoUrl,
+    String? subject,
+    List<String>? welcomeMessages,
+  });
+}
 
-  external TalkJsUser get me;
+@JS()
+@anonymous
+class ParticipantSettings {
+  external factory ParticipantSettings({
+    String? access,
+    bool? notify,
+  });
+}
 
-  external TalkJsUser get other;
+@JS('Talk.ConversationBuilder')
+class ConversationBuilder {
+  external dynamic? get custom;
+  external String? get photoUrl;
+  external String? get subject;
+  external List<String>? get welcomeMessages;
 
-  external List<TalkJsUser> get others;
+  external void setAttributes(ConversationAttributes attributes);
+  external void setParticipant(
+    User user,
+    ParticipantSettings settings,
+  );
+}
 
-  external factory TalksJsConversationSelectedEvent({
-    TalksJSConversationData conversation,
-    TalkJsUser me,
-    TalkJsUser other,
-    TalkJsUser others,
+@JS('Talk.Session')
+class Session {
+  external factory Session(SessionOptions options);
+
+  external String get appId;
+
+  external User get me;
+
+  external ConversationBuilder getOrCreateConversation(String id);
+
+  external InboxInterop createInbox(InboxOptions inboxOptions);
+
+  external Chatbox createChatbox(ConversationBuilder conversation);
+
+  external void syncThemeForLocalDev(String path);
+}
+
+@JS()
+@anonymous
+class InboxOptions {
+  external dynamic /*ConversationBuilder|String*/ get selected;
+
+  external set selected(dynamic /*ConversationBuilder|String*/ selected);
+
+  external factory InboxOptions({
+    dynamic /*ConversationBuilder|String*/ selected,
+  });
+}
+
+@JS()
+@anonymous
+class ConversationData {
+  external String get id;
+
+  external String? get photoUrl;
+
+  external String? get subject;
+
+  external List<String>? get welcomeMessages;
+
+  external factory ConversationData({
+    String id,
+    String? photoUrl,
+    String? subject,
+    List<String>? welcomeMessages,
+  });
+}
+
+@JS()
+@anonymous
+class ConversationSelectedEvent {
+  external ConversationData? get conversation;
+  external User get me;
+  external List<User>? get others;
+
+  external factory ConversationSelectedEvent({
+    ConversationData? conversation,
+    User me,
+    List<User>? others,
   });
 }

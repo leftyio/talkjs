@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.0
+
+- Null safety
+
 ## 0.0.7
 - fix off conversation
 
