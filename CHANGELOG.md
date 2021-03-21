@@ -3,6 +3,7 @@
 ## 0.1.0
 
 - Null safety
+- Implement all TalkJS API
 
 ## 0.0.7
 - fix off conversation

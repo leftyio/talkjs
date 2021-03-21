@@ -7,7 +7,7 @@ import 'dart:html';
 import 'package:js/js.dart';
 import 'package:dart_browser_loader/dart_browser_loader.dart';
 
-import 'talk_js_interop.dart';
+import 'interop.dart' as interop;
 
 const _talkjsScript = '''
 (function(t,a,l,k,j,s){
@@ -16,36 +16,42 @@ s=a.createElement('script');s.async=1;s.src="https://cdn.talkjs.com/talk.js";a.h
 .push([f])},catch:function(){return k&&new k()},c:l}};})(window,document,[]);
 ''';
 
-const _scriptId = 'talkjs-sdk';
-
 external dynamic get undefined;
 
-Future<void> addTalkJsScript() async {
-  await loadInlineScript(_talkjsScript, _scriptId);
+void addTalkJsScript() {
+  eval(_talkjsScript);
 }
 
 /// The main messaging UI.
 /// Chats on the left, messages on the right.
 /// Create an Inbox through [Session.createInbox] and then call [mount] to show it.
-class Inbox {
-  final InboxInterop _talkJsInbox;
+class TalkJsInbox {
+  final interop.Inbox _talkJsInbox;
 
-  late StreamController<ConversationSelectedEvent>
+  late StreamController<interop.ConversationSelectedEvent>
       _onSelectConversationController;
 
-  Inbox._(this._talkJsInbox) {
+  TalkJsInbox(this._talkJsInbox) {
     _onSelectConversationController = StreamController(
       onListen: _onListenSelectConversationController,
       onCancel: _onCancelSelectConversationController,
     );
   }
 
-  Stream<ConversationSelectedEvent> get onConversationSelected =>
+  Stream<interop.ConversationSelectedEvent> get onConversationSelected =>
       _onSelectConversationController.stream;
 
   /// Renders the UI inside a DOM element specified by [element].
-  void mount(Element element) {
-    _talkJsInbox.mount(element);
+  Future<void> mount(Element? element) {
+    return promiseToFuture(_talkJsInbox.mount(element));
+  }
+
+  void on(String eventType, Function handler) {
+    _talkJsInbox.on(eventType, allowInterop(handler));
+  }
+
+  void off(String eventType, Function handler) {
+    _talkJsInbox.off(eventType, allowInterop(handler));
   }
 
   void destroy() {
@@ -53,15 +59,12 @@ class Inbox {
     _onSelectConversationController.close();
   }
 
-  void selectById(String conversationId, [InboxOptions? options]) {
-    _talkJsInbox.select(conversationId, options);
+  void selectById(String conversationId) {
+    _talkJsInbox.select(conversationId);
   }
 
   void _onListenSelectConversationController() {
-    _talkJsInbox.on(
-      'conversationSelected',
-      allowInterop(_onConversationSelected),
-    );
+    on('conversationSelected', _onConversationSelected);
   }
 
   void _onCancelSelectConversationController() {
@@ -70,32 +73,63 @@ class Inbox {
   }
 
   void _onConversationSelected(
-    ConversationSelectedEvent event,
+    interop.ConversationSelectedEvent event,
   ) {
     _onSelectConversationController.add(event);
   }
 }
 
-@JS('Talk.ready.then')
-external void _ready(Function f);
-
-@JS('Talk.oneOnOneId')
-external String _oneOnOneId(
-  dynamic /*User|String*/ me,
-  dynamic /*User|String*/ other,
-);
-
 class TalkJs {
   /// Complete when talkjs is ready
   static Future<void> get ready {
-    final completer = Completer<void>();
-    _ready(allowInterop(completer.complete));
-    return completer.future;
+    return promiseToFuture(interop.ready);
   }
 
+  ///
+  /// NOTE: If this function changes make sure to update the documentation in `The_Talk_Object.md`
+  ///
+  /// A helper method to predictably compute a Conversation ID based on participants' ids in the given conversation.
+  /// Use this method if you want to simply create a conversation between two users,
+  /// not related to a particular product, order or transaction.
+  ///
+  /// The order of the parameters does not matter.
+  /// For example, `Talk.oneOnOneId("a", "b")` yields the same result as `Talk.oneOnOneId("b", "a")`.
+  ///
+  /// This method takes the following steps:
+  /// 1. Take two ids of users and put them in an array
+  /// 2. Sort them lexicographically
+  /// 3. JSON encode them
+  /// 4. hash the result using SHA1, return the first 20 characters
+  ///
+  /// In pseudocode, this is what this function does:
+  ///
+  ///     var sorted = [me.id, other.id].sort()
+  ///     var encoded = JSON.encode(sorted)
+  ///     var hash = sha1(encoded)
+  ///     return truncate(hash, 20)
+  ///
+  /// For a PHP implementation, see https://gist.github.com/eteeselink/4dc3ad32cc478986ff2b5b6361a1825f.
+  /// {@link https://talkjs.com/?chat | Get in touch} if you need our help implementing this in your backend language.
+  /// @public
   static String oneOnOneId(
     dynamic /*User|String*/ me,
     dynamic /*User|String*/ other,
-  ) =>
-      _oneOnOneId(me, other);
+  ) {
+    return interop.oneOnOneId(me, other);
+  }
+
+  /// Retrieves global App metadata.
+  ///
+  /// @remarks This function may be called before instantiating a Talk.Session, and
+  /// is not authenticated. Please consider all app metadata (eg global custom
+  /// fields) to be public data, and ensure that you do not store any sensitive
+  /// data in app custom fields.
+  ///
+  /// You can change App metadata using the TalkJS REST API.
+  ///
+  /// Note that this function cannot be used to verify whether an app ID exists; it
+  /// always returns valid data, even for nonexistent app IDs.
+  static Future<interop.AppMetadata> getAppMetadata(String appId) {
+    return promiseToFuture(interop.getAppMetadata(appId));
+  }
 }
