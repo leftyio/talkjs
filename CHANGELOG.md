@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.8
+
+- configurable addTalkJsScript(script: scriptUrl)
+
 ## 0.0.7
 - fix off conversation
 

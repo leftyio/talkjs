@@ -9,18 +9,18 @@ import 'package:dart_browser_loader/dart_browser_loader.dart';
 
 import 'talk_js_interop.dart' as interop;
 
-const _talkjsScript = '''
+const _defaultScript = 'https://cdn.talkjs.com/talk.js';
+
+String _talkjsScript({String script = _defaultScript}) => '''
 (function(t,a,l,k,j,s){
-s=a.createElement('script');s.async=1;s.src="https://cdn.talkjs.com/talk.js";a.getElementsByTagName('head')[0].appendChild(s);k=t.Promise
+s=a.createElement('script');s.async=1;s.src="$script";a.getElementsByTagName('head')[0].appendChild(s);k=t.Promise
 t.Talk={ready:{then:function(f){if(k)return new k(function(r,e){l.push([f,r,e])});l.push([f])},catch:function(){return k&&new k()},c:l}}
 })(window,document,[]);''';
 
-const _scriptId = "talkjs-sdk";
+external dynamic get undefined;
 
-external get undefined;
-
-void addTalkJsScript() {
-  loadInlineScript(_talkjsScript, _scriptId);
+void addTalkJsScript({String script = _defaultScript}) {
+  eval(_talkjsScript(script: script));
 }
 
 /// A user of your app.
@@ -47,7 +47,7 @@ class User {
             configuration: configuration));
 
   @override
-  String toString() => "User{${_talkJsUser.id}, ${_talkJsUser.name}}";
+  String toString() => 'User{${_talkJsUser.id}, ${_talkJsUser.name}}';
 }
 
 /// Encapsulates an active conversation between two parties.
@@ -130,7 +130,7 @@ class Inbox {
 
   void _onListenSelectConversationController() {
     _talkJsInbox.on(
-        "conversationSelected", allowInterop(_onConversationSelected));
+        'conversationSelected', allowInterop(_onConversationSelected));
   }
 
   void _onCancelSelectConversationController() {
@@ -237,7 +237,7 @@ class InboxOptions {
     }
   }
 
-  _getSelected(selected) {
+  dynamic _getSelected(selected) {
     if (selected is String) {
       return selected;
     } else if (selected is Conversation) {
