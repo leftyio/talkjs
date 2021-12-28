@@ -3,9 +3,9 @@ library talk_js_base;
 
 import 'dart:async';
 import 'dart:html';
+import 'dart:js' as js;
 
 import 'package:js/js.dart';
-import 'package:dart_browser_loader/dart_browser_loader.dart';
 
 import 'interop.dart' as interop;
 
@@ -19,7 +19,7 @@ s=a.createElement('script');s.async=1;s.src="https://cdn.talkjs.com/talk.js";a.h
 external dynamic get undefined;
 
 void addTalkJsScript() {
-  eval(_talkjsScript);
+  js.context.callMethod('eval', [_talkjsScript]);
 }
 
 /// The main messaging UI.

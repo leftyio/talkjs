@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.1
+
+- Remove dart_browser_loader dependency
+
 ## 0.1.0
 
 - Null safety

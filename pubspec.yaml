@@ -1,6 +1,6 @@
 name: talkjs
 description: TalkJS wrap for dart
-version: 0.1.0
+version: 0.1.1
 homepage: https://github.com/leftyio/talkjs
 
 environment:
@@ -8,10 +8,9 @@ environment:
 
 dependencies:
   js: ^0.6.3
-  dart_browser_loader: ^0.1.0
 
 dev_dependencies:
   test: ^1.11.0
   pedantic: ^1.8.0
-  build_runner: ^1.0.0
-  build_web_compilers: ^2.0.0
+  build_runner: ^2.0.0
+  build_web_compilers: ^3.0.0
